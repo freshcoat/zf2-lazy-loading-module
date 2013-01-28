@@ -30,7 +30,26 @@ class DomainListener extends AbstractListener
      */
     public function authorizeModule($moduleName)
     {
-    	$hostname = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : @$_SERVER['HTTP_HOST'];
-        return in_array($hostname, $this->config);
+        $hostname 			= isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : @$_SERVER['HTTP_HOST'];
+    	$extractedHostname  = $this->extractHostname($hostname);
+    	
+        if (in_array("*.$extractedHostname", $this->config)) {
+        	array_push($this->config, $hostname);
+        }
+
+    	return in_array($hostname, $this->config);
     }
+    
+    /**
+     * 
+     * Extract hostname from subdomain
+     * @param $hostname
+     */
+	public function extractHostname($hostname)
+	{
+		$hostname = explode('.', $hostname);
+		$hostname = array_reverse($hostname);
+
+		return $hostname[1].'.'.$hostname[0];
+	}
 }
